@@ -25,6 +25,7 @@ class ConfirmablePasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Verificar la contraseña
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
             'password' => $request->password,
@@ -34,8 +35,13 @@ class ConfirmablePasswordController extends Controller
             ]);
         }
 
+        // Guardar en la sesión la confirmación de la contraseña
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        // Obtener el usuario autenticado
+        $user = Auth::user();
+
+        // Redirigir a la ruta correspondiente según el rol
+        return redirect()->intended(RouteServiceProvider::redirectToBasedOnRole($user));
     }
 }

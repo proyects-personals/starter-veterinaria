@@ -14,10 +14,13 @@ class EmailVerificationNotificationController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Si el usuario ya ha verificado su correo, redirigirlo a su página principal según el rol
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            $user = $request->user(); // Obtener el usuario autenticado
+            return redirect()->intended(RouteServiceProvider::redirectToBasedOnRole($user)); // Redirigir según el rol
         }
 
+        // Enviar la notificación de verificación de correo electrónico
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('status', 'verification-link-sent');
